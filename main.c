@@ -49,7 +49,8 @@ int main()
 	for (int i = 0; i < div; i++) {
 		qsort(&srvl[i*10], 10, sizeof(server *), sortsrvsz);
 	}
-	qsort(qsort(&srvl[div], diff, sizeof(server *), sortsrvsz);
+	qsort(&srvl[div], diff, sizeof(server *), sortsrvsz);
+
 }
 
 /* sort server by power per size */
