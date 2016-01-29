@@ -20,9 +20,9 @@ int main()
 
 	/* parse unavailable slots */
 	coord *unavSlots[numUnav];
-	unsigned int yrow, xslot;
+	int yrow, xslot;
 	for (int i = 0; i < numUnav; i++) {
-		fscanf(input, "%u %u\n", &yrow, &xslot);
+		fscanf(input, "%d %d\n", &yrow, &xslot);
 
 		coord *dfc = malloc(sizeof(coord));
 		dfc->row = yrow;
@@ -40,6 +40,8 @@ int main()
 		srv->sz = size;
 		srv->pw = power;
 		srv->id = i;
+		srv->co.row = -1;
+		srv->co.slot = -1;
 		srvl[i] = srv;
 	}
 
@@ -80,8 +82,8 @@ int main()
 	*  if all rows are occupied or otherwise insertion fails, try the next
 	*  server.
 	*/
-	unsigned int i = 0;
-	unsigned int j = 0;
+	int i = 0;
+	int j = 0;
 	/* indicates whether we've reset the rows. if we've done that and run
 	*  through all rows but still have 'clean' rows, we cannot fit anything
 	*  anymore
@@ -203,10 +205,10 @@ void printsrvlist(server *srvl[], int len)
  */
 int tryInsert(server *srv, char *row, unsigned int rlen)
 {
-	for (unsigned int i = 0; i < rlen; i++) {
+	for (int i = 0; i < rlen; i++) {
 		/* inv: slots occupied ? */
 		int inv = 0;
-		for (unsigned int j = 0; j < srv->sz; j++) {
+		for (int j = 0; j < srv->sz; j++) {
 			if (row[i+j]) {
 				inv = 1;
 				break;
@@ -218,7 +220,7 @@ int tryInsert(server *srv, char *row, unsigned int rlen)
 		/* row is filled in by caller */
 		srv->co.slot = i;
 		/* all slots are free, put server there */
-		for (unsigned int j = 0; j < srv->sz; j++) {
+		for (int j = 0; j < srv->sz; j++) {
 			row[i+j] = 'x';
 		}
 		return 1;

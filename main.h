@@ -7,8 +7,8 @@
 #include <string.h> /* memset */
 
 typedef struct _coord {
-	unsigned int row;
-	unsigned int slot;
+	int row;
+	int slot;
 } coord;
 
 typedef struct _server {
