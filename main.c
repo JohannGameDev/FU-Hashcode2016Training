@@ -60,6 +60,16 @@ int main()
 	qsort(&srvl[div], diff, sizeof(server *), sortsrvsz);
 
 
+	/* calculate avg pw/sz */
+	double avgpps = 0.0;
+	for (int i = 0; i < numSrv; i++) {
+		avgpps += (double)(srvl[i]->pw)/srvl[i]->sz;
+	}
+	avgpps /= numSrv;
+	double totalpw = avgpps * numRows * slotsPRow;
+	int ppsppool = (int)(totalpw / numPools);
+	printf("ppspool: %d\n", ppsppool);
+
 	/* insert servers into rows */
 	char rows[numRows][slotsPRow];
 
@@ -82,9 +92,13 @@ int main()
 	*  if all rows are occupied or otherwise insertion fails, try the next
 	*  server.
 	*/
+	unsigned int poolpw[numPools];
+	memset(poolpw, 0, numPools*sizeof(int));
+	unsigned int p = 0;
+
 	int i = 0;
 	int j = 0;
-	/* indicates whether we've reset the rows. if we've done that and run
+	/* _clean_ indicates whether we've reset the rows. if we've done that and run
 	*  through all rows but still have 'clean' rows, we cannot fit anything
 	*  anymore
 	*/
@@ -98,10 +112,16 @@ int main()
 			j = 0;
 			clean = 1;
 		}
+		if (p >= numPools) p = 0;
 
 		printf("(I) processing srv %d (sz, pw): %u, %u\n", i, srvl[i]->sz, srvl[j]->pw);
 		printrow(slotsPRow, rows[j]);
 		if (tryInsert(srvl[i], rows[j], slotsPRow)) {
+			/* assign pool */
+			poolpw[p] += srvl[i]->pw;
+			srvl[i]->pool = p;
+			p++;
+
 			srvl[i]->co.row = j;
 			printrow(slotsPRow, rows[j]);
 			printf("(S) inserted\n");
@@ -118,6 +138,11 @@ int main()
 	printrows(slotsPRow, numRows, rows);
 
 	qsort(&srvl[0], numSrv, sizeof(server *), sortsrvid);
+	printresultlist(&srvl[0], numSrv);
+
+	qsort(poolpw, numPools, sizeof(unsigned int), mini);
+	printf("mini: %u\n", poolpw[0]);
+
 }
 
 /* sort server by power per size */
@@ -178,17 +203,23 @@ static int sortsrvid(const void *srv1vp, const void *srv2vp)
 	}
 }
 
-void printresultlist(server *srvl[], int len)
+void printresultlist(server *srvl[], unsigned int len)
 {
-	FILE *result = fopen("result.out", "rw");
+	FILE *result = fopen("result.out", "w+");
+	if (!result) {
+		perror("fopen");
+		return;
+	}
 	for (int j = 0; j < len; j++)
 	{
-		/* TODO: replace srvl[j]->id with pool assignment */
-		fprintf(result, "%u %u %u", srvl[j]->co.row, srvl[j]->co.slot, srvl[j]->id);
+		if (srvl[j]->co.row < 0 || srvl[j]->co.slot < 0) continue;
+		fprintf(result, "%d %d %u\n", srvl[j]->co.row, srvl[j]->co.slot, srvl[j]->pool);
 	}
+
+	fclose(result);
 }
 
-void printsrvlist(server *srvl[], int len)
+void printsrvlist(server *srvl[], unsigned int len)
 {
 	for (int j = 0; j < len; j++) {
 		unsigned int sz = srvl[j]->sz;
@@ -250,4 +281,17 @@ void printrows(const unsigned int rlen, const unsigned int num, char rows[][rlen
 	}
 }
 
+static int mini(const void *a, const void *b)
+{
+	const unsigned int *v1 = (unsigned int * const )a;
+	const unsigned int *v2 = (unsigned int * const )b;
 
+
+	if (*v1 < *v2) {
+		return -1;
+	} else if (*v1 == *v2) {
+		return 0;
+	} else {
+		return 1;
+	}
+}
