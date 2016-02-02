@@ -1,0 +1,9 @@
+ROWS SLOTSpROW UNAV POOLS SRVRS
+ROW SLOT # coordinates of UNAV servers, UNAV lines
+.
+.
+.
+SLOTn CAP # SLOTn of the the server used, with capacity CAP
+.
+.
+.
