@@ -14,7 +14,7 @@ public class PizzaCutter {
 	 * Running time of the algorithm
 	 * Adjust this value before lunch time
 	 */
-	static final long MAX_RUNNING_TIME = 2000000L; // 10 seconds
+	static final long MAX_RUNNING_TIME = 10000L; // 10 seconds
 
 	/*
 	 * weights the bulkiness against the other values in the value computation
