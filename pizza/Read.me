@@ -1,0 +1,36 @@
+A solution for the optimized pizza cutting problem from google hashcode. 
+For the problem statement, please refer to test_task_en_20150327_1550.pdf
+
+Starter Class is PizzaCutter
+
+Algorithm:
+
+1. calculate the different shapes a piece of pizza can have, in respect to
+   the mimum ham count and the maximum cell count.
+2. calculate the potential pieces with a shape and a location on the pizza. 
+   Filter out pieces having not enough ham.
+3. calculate a quality for each potential piece
+   - as fewer ham in this piece relative to its size, as better
+   - as longer the perimeter of a piece relative to its size, as worse
+   - bonus for edge pieces, double bonus for corner pieces
+   - add a little potion of randomness to the values
+4. Sort the list of pieces by their quality, descending
+5. iterate on the pieces. Start with an empty list of actual pieces.
+   - check if the piece intersects with one
+   - if not, add it to the list of actual pieces
+6. compute the number of cells covered by all pieces. 
+   If the number is better then the prevously best number, then
+   - double check if the solution is correct
+   - save the solution and update the best number of cells
+7. Check the running time spent so far
+   - if we have more time to spent, repeat with step 3.
+8. Print the solution to pizza.out
+   
+Best solution, after 30 min running time: 8201 cells
+
+Possible improvements
+- manually tweak the calculation of the quality
+- optimize the parameters for the quality calculation by machine learning
+  (maybe remove the randomness as the combination might not make sense)
+- improve a solution by trying to grow pieces (make them longer or wider) 
+  or to move them.
